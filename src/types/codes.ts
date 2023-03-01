@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */
-enum CodesErrors {
+enum CodesHTTPStatus {
+  DocCreated = 201,
   BadReq = 400,
   NotFound = 404,
   Default = 500,
 }
 
-export default CodesErrors;
+export default CodesHTTPStatus;
