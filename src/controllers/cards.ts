@@ -28,7 +28,7 @@ export const createCard = async (
     const { name, link } = req.body;
     try {
       const card = await Card.create({ owner: userId, name, link });
-      res.status(CodesHTTPStatus.DocCreated).json(card);
+      res.status(CodesHTTPStatus.DOC_CREATED).json(card);
     } catch (err) {
       processError(err, res, 'card');
     }
