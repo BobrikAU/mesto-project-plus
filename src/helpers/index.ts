@@ -1,11 +1,10 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
+import { DocNotFoundError } from '../errors/docNotFoundError';
 import CodesHTTPStatus from '../types/codes';
-import DocNotFoundError from '../errors/docNotFoundError';
 
 const handleErrors = (err: any, res: Response, typeDoc: string) => {
-  if ((err instanceof mongoose.Error.CastError && err.path === '_id')
-    || err instanceof DocNotFoundError) {
+  if (err instanceof DocNotFoundError) {
     return res.status(CodesHTTPStatus.NOT_FOUND).json({
       message: typeDoc === 'user'
         ? 'Запрошенный пользователь не найден'

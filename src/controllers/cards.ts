@@ -3,7 +3,7 @@ import Card from '../models/card';
 import { RequestWithId } from '../types/interfaces';
 import processError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
-import DocNotFoundError from '../errors/docNotFoundError';
+import { DocNotFoundError, changeTypeError } from '../errors/docNotFoundError';
 
 export const getAllCards = async (req: RequestWithId, res: Response) => {
   try {
@@ -46,7 +46,7 @@ export const deleteCard = async (
       .populate(['owner', 'likes']);
     res.json(card);
   } catch (err) {
-    processError(err, res, 'card');
+    processError(changeTypeError(err, 'Card'), res, 'card');
   }
 };
 
@@ -69,7 +69,7 @@ export const likeCard = async (
         .populate(['owner', 'likes']);
       res.json(card);
     } catch (err) {
-      processError(err, res, 'card');
+      processError(changeTypeError(err, 'Card'), res, 'card');
     }
   }
 };
@@ -94,7 +94,7 @@ export const dislikeCard = async (
         .populate(['owner', 'likes']);
       res.json(card);
     } catch (err) {
-      processError(err, res, 'card');
+      processError(changeTypeError(err, 'Card'), res, 'card');
     }
   }
 };
