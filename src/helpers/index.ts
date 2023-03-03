@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import mongoose from 'mongoose';
-import { DocNotFoundError } from '../errors/docNotFoundError';
+import DocNotFoundError from '../errors/docNotFoundError';
 import CodesHTTPStatus from '../types/codes';
 
 const handleErrors = (err: any, res: Response, typeDoc: string) => {

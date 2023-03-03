@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DocNotFoundError, changeTypeError } from '../errors/docNotFoundError';
+import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
 import handleError from '../helpers/index';
@@ -20,7 +20,7 @@ export const getUser = async (req: Request, res: Response) => {
     const user = await User.findById(userId).orFail(new DocNotFoundError('User not found'));
     res.json(user);
   } catch (err) {
-    handleError(changeTypeError(err, 'User'), res, 'user');
+    handleError(err, res, 'user');
   }
 };
 
@@ -38,25 +38,22 @@ interface IBody {
   [name: string]: string;
 }
 async function updateInfo(
-  req: RequestWithId<IBody>,
+  userId: string,
+  data: IBody,
   res: Response,
 ) {
-  if (req.user) {
-    const userId = req.user._id;
-    const data = req.body;
-    try {
-      const user = await User.findByIdAndUpdate(
-        userId,
-        data,
-        {
-          returnDocument: 'after',
-          runValidators: true,
-        },
-      ).orFail(new DocNotFoundError('User not found'));
-      res.json(user);
-    } catch (err) {
-      handleError(changeTypeError(err, 'User'), res, 'user');
-    }
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      data,
+      {
+        returnDocument: 'after',
+        runValidators: true,
+      },
+    ).orFail(new DocNotFoundError('User not found'));
+    res.json(user);
+  } catch (err) {
+    handleError(err, res, 'user');
   }
 }
 
@@ -68,7 +65,11 @@ export const updateUserInfo = async (
   req: RequestWithId<IUpdateUserBody>,
   res: Response,
 ) => {
-  await updateInfo(req, res);
+  if (req.user) {
+    const userId = req.user._id;
+    const data = req.body;
+    await updateInfo(userId, data, res);
+  }
 };
 
 interface IUpdateAvatarBody extends IBody {
@@ -78,5 +79,9 @@ export const updateAvatar = async (
   req: RequestWithId<IUpdateAvatarBody>,
   res: Response,
 ) => {
-  await updateInfo(req, res);
+  if (req.user) {
+    const userId = req.user._id;
+    const data = req.body;
+    await updateInfo(userId, data, res);
+  }
 };
