@@ -1,9 +1,8 @@
 import express, { Response, NextFunction } from 'express';
 import { env } from 'process';
 import mongoose from 'mongoose';
-import usersRouter from './routers/users';
+import router from './routers/index';
 import { RequestWithId } from './types/interfaces';
-import cardsRouter from './routers/cards';
 
 const app = express();
 const { PORT = 3000 } = env;
@@ -27,8 +26,7 @@ app.use(
   },
 );
 
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+app.use('/', router);
 
 app.listen(PORT, () => {
   console.log(`Cервер работает на порту ${PORT}!!!`);
