@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
@@ -32,10 +33,12 @@ export const createNewUser = async (req: Request, res: Response) => {
     about,
     avatar,
   } = req.body;
+  const salt = bcrypt.genSaltSync();
+  const hashPassword = bcrypt.hashSync(password, salt);
   try {
     const user = await User.create({
       email,
-      password,
+      password: hashPassword,
       name,
       about,
       avatar,

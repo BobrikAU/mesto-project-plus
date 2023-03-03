@@ -27,15 +27,15 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
-      required: true,
       minLength: 2,
       maxLength: 30,
+      default: 'Жак-Ив Кусто',
     },
     about: {
       type: String,
-      required: true,
       minlength: 2,
       maxLength: 200,
+      default: 'Исследователь',
     },
     avatar: {
       type: String,
@@ -45,7 +45,7 @@ const userSchema = new Schema(
         },
         message: 'Неверный адрес аватара',
       },
-      required: true,
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
   },
   {
