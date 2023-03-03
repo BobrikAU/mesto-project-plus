@@ -25,9 +25,21 @@ export const getUser = async (req: Request, res: Response) => {
 };
 
 export const createNewUser = async (req: Request, res: Response) => {
-  const { name, about, avatar } = req.body;
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
   try {
-    const user = await User.create({ name, about, avatar });
+    const user = await User.create({
+      email,
+      password,
+      name,
+      about,
+      avatar,
+    });
     res.status(CodesHTTPStatus.DOC_CREATED).json(user);
   } catch (err) {
     handleError(err, res, 'user');

@@ -17,6 +17,11 @@ const handleErrors = (err: any, res: Response, typeDoc: string) => {
       message: `Переданы некорректные данные: ${err.message}`,
     });
   }
+  if (err.name === 'MongoServerError') {
+    return res.status(CodesHTTPStatus.CONFLICT).json({
+      message: `Повторное использование ${Object.keys(err.keyValue)[0]} - ${Object.values(err.keyValue)[0]}, который должен быть уникальным. Используйте другой ${Object.keys(err.keyValue)[0]}.`,
+    });
+  }
   return res.status(CodesHTTPStatus.DEFAULT).json({
     message: `Произошла ошибка: ${err}`,
   });
