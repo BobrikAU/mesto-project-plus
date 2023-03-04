@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
 import handleError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
+import UnauthorizedError from '../errors/unauthorizedError';
+
+require('dotenv').config();
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -25,6 +29,12 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
+function makeHashPassword(password: string) {
+  const salt = bcrypt.genSaltSync();
+  const hashPassword = bcrypt.hashSync(password, salt);
+  return hashPassword;
+}
+
 export const createNewUser = async (req: Request, res: Response) => {
   const {
     email,
@@ -33,8 +43,7 @@ export const createNewUser = async (req: Request, res: Response) => {
     about,
     avatar,
   } = req.body;
-  const salt = bcrypt.genSaltSync();
-  const hashPassword = bcrypt.hashSync(password, salt);
+  const hashPassword = makeHashPassword(password);
   try {
     const user = await User.create({
       email,
@@ -44,6 +53,34 @@ export const createNewUser = async (req: Request, res: Response) => {
       avatar,
     });
     res.status(CodesHTTPStatus.DOC_CREATED).json(user);
+  } catch (err) {
+    handleError(err, res, 'user');
+  }
+};
+
+export const login = async (req: RequestWithId, res: Response) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email })
+      .orFail(new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль'))
+      .exec();
+    const isPasswordTrue = bcrypt.compareSync(password, user.password);
+    if (!isPasswordTrue) {
+      throw new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль');
+    }
+    const secretKey = process.env.JWT_SECRET ? process.env.JWT_SECRET : 'secret';
+    const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
+    res
+      .cookie(
+        'token',
+        token,
+        {
+          expires: new Date(Date.now() + 3600000 * 24 * 7),
+          httpOnly: true,
+          sameSite: 'strict',
+        },
+      )
+      .send();
   } catch (err) {
     handleError(err, res, 'user');
   }

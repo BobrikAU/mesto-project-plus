@@ -2,6 +2,7 @@ import { Response } from 'express';
 import mongoose from 'mongoose';
 import DocNotFoundError from '../errors/docNotFoundError';
 import CodesHTTPStatus from '../types/codes';
+import UnauthorizedError from '../errors/unauthorizedError';
 
 const handleErrors = (err: any, res: Response, typeDoc: string) => {
   if (err instanceof DocNotFoundError) {
@@ -15,6 +16,11 @@ const handleErrors = (err: any, res: Response, typeDoc: string) => {
     || err instanceof mongoose.Error.ValidationError) {
     return res.status(CodesHTTPStatus.BAD_REQUEST).json({
       message: `Переданы некорректные данные: ${err.message}`,
+    });
+  }
+  if (err instanceof UnauthorizedError) {
+    return res.status(CodesHTTPStatus.UNAUTHORIZED).json({
+      message: err.message,
     });
   }
   if (err.name === 'MongoServerError') {
