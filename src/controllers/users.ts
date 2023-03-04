@@ -19,14 +19,25 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+async function getUserById(userId: string, res: Response) {
   try {
     const user = await User.findById(userId).orFail(new DocNotFoundError('User not found'));
     res.json(user);
   } catch (err) {
     handleError(err, res, 'user');
   }
+}
+
+export const getYourself = async (req: RequestWithId, res: Response) => {
+  if (req.user) {
+    const userId = req.user._id;
+    await getUserById(userId, res);
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  await getUserById(userId, res);
 };
 
 function makeHashPassword(password: string) {

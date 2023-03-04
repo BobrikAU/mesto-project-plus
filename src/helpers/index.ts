@@ -4,7 +4,7 @@ import DocNotFoundError from '../errors/docNotFoundError';
 import CodesHTTPStatus from '../types/codes';
 import UnauthorizedError from '../errors/unauthorizedError';
 
-const handleErrors = (err: any, res: Response, typeDoc: string) => {
+const handleErrors = (err: any, res: Response, typeDoc: string = '') => {
   if (err instanceof DocNotFoundError) {
     return res.status(CodesHTTPStatus.NOT_FOUND).json({
       message: typeDoc === 'user'
