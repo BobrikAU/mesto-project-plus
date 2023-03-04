@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import DocNotFoundError from '../errors/docNotFoundError';
 import CodesHTTPStatus from '../types/codes';
 import UnauthorizedError from '../errors/unauthorizedError';
+import ForbiddenError from '../errors/forbiddenError';
 
 const handleErrors = (err: any, res: Response, typeDoc: string = '') => {
   if (err instanceof DocNotFoundError) {
@@ -20,6 +21,11 @@ const handleErrors = (err: any, res: Response, typeDoc: string = '') => {
   }
   if (err instanceof UnauthorizedError) {
     return res.status(CodesHTTPStatus.UNAUTHORIZED).json({
+      message: err.message,
+    });
+  }
+  if (err instanceof ForbiddenError) {
+    return res.status(CodesHTTPStatus.FORBIDDEN).json({
       message: err.message,
     });
   }

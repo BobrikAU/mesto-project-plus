@@ -4,6 +4,7 @@ import { RequestWithId } from '../types/interfaces';
 import processError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
 import DocNotFoundError from '../errors/docNotFoundError';
+import ForbiddenError from '../errors/forbiddenError';
 
 export const getAllCards = async (req: RequestWithId, res: Response) => {
   try {
@@ -40,11 +41,15 @@ export const deleteCard = async (
   res: Response,
 ) => {
   const { cardId } = req.params;
+  const userId = req.user ? req.user._id : '';
   try {
-    const card = await Card.findByIdAndRemove(cardId)
-      .orFail(new DocNotFoundError('Card not found'))
-      .populate(['owner', 'likes']);
-    res.json(card);
+    const card = await Card.findById(cardId)
+      .orFail(new DocNotFoundError('Card not found'));
+    if (card.owner.toString() !== userId) {
+      throw new ForbiddenError('У Вас нет прав, на удаление этой карточки.');
+    }
+    res.json(await card.populate(['owner', 'likes']));
+    await card.deleteOne();
   } catch (err) {
     processError(err, res, 'card');
   }
