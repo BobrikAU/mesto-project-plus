@@ -73,6 +73,7 @@ export const login = async (req: RequestWithId, res: Response) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email })
+      .select('+password')
       .orFail(new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль'))
       .exec();
     const isPasswordTrue = bcrypt.compareSync(password, user.password);
@@ -91,7 +92,7 @@ export const login = async (req: RequestWithId, res: Response) => {
           sameSite: 'strict',
         },
       )
-      .send();
+      .json(user);
   } catch (err) {
     handleError(err, res, 'user');
   }
