@@ -2,7 +2,6 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { RequestWithId } from '../types/interfaces';
 import UnauthorizedError from '../errors/unauthorizedError';
-// import handleErrors from '../helpers/index';
 
 require('dotenv').config();
 

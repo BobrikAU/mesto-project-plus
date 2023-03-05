@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
-// import handleError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
 import UnauthorizedError from '../errors/unauthorizedError';
 

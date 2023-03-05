@@ -1,7 +1,6 @@
 import { Response, NextFunction } from 'express';
 import Card from '../models/card';
 import { RequestWithId } from '../types/interfaces';
-// import processError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
 import DocNotFoundError from '../errors/docNotFoundError';
 import ForbiddenError from '../errors/forbiddenError';

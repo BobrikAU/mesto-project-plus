@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
-import isURL from 'validator/lib/isURL';
+import { REGEX, user } from '../types/constants';
 
 interface IUser {
   email: string;
@@ -28,21 +28,21 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
-      minLength: 2,
-      maxLength: 30,
+      minLength: user.name.MIN_LENGTH,
+      maxLength: user.name.MAX_LENGTH,
       default: 'Жак-Ив Кусто',
     },
     about: {
       type: String,
-      minlength: 2,
-      maxLength: 200,
+      minlength: user.about.MIN_LENGTH,
+      maxLength: user.about.MAX_LENGTH,
       default: 'Исследователь',
     },
     avatar: {
       type: String,
       validate: {
         validator(url: string) {
-          return isURL(url);
+          return REGEX.test(url);
         },
         message: 'Неверный адрес аватара',
       },
