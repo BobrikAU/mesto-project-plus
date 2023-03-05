@@ -1,9 +1,10 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { RequestWithId } from '../types/interfaces';
-import CodesHTTPStatus from '../types/codes';
+import DocNotFoundError from '../errors/docNotFoundError';
 
-const pageNotFound = (req: RequestWithId<undefined>, res: Response) => {
-  res.status(CodesHTTPStatus.NOT_FOUND).json({ message: 'Запрошенная страница не найдена' });
+const pageNotFound = (req: RequestWithId<undefined>, res: Response, next: NextFunction) => {
+  const error = new DocNotFoundError('Запрошенная страница не найдена');
+  next(error);
 };
 
 export default pageNotFound;

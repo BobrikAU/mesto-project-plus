@@ -1,36 +1,101 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
-import handleError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
+import UnauthorizedError from '../errors/unauthorizedError';
 
-export const getAllUsers = async (req: Request, res: Response) => {
+require('dotenv').config();
+
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.find({});
     res.json(users);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
+async function getUserById(userId: string, res: Response, next: NextFunction) {
   try {
-    const user = await User.findById(userId).orFail(new DocNotFoundError('User not found'));
+    const user = await User.findById(userId).orFail(
+      new DocNotFoundError('Запрошенный пользователь не найден'),
+    );
     res.json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
+  }
+}
+
+export const getYourself = async (req: RequestWithId, res: Response, next: NextFunction) => {
+  if (req.user) {
+    const userId = req.user._id;
+    await getUserById(userId, res, next);
   }
 };
 
-export const createNewUser = async (req: Request, res: Response) => {
-  const { name, about, avatar } = req.body;
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
+  const { userId } = req.params;
+  await getUserById(userId, res, next);
+};
+
+function makeHashPassword(password: string) {
+  const salt = bcrypt.genSaltSync();
+  const hashPassword = bcrypt.hashSync(password, salt);
+  return hashPassword;
+}
+
+export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
+  const hashPassword = makeHashPassword(password);
   try {
-    const user = await User.create({ name, about, avatar });
+    const user = await User.create({
+      email,
+      password: hashPassword,
+      name,
+      about,
+      avatar,
+    });
     res.status(CodesHTTPStatus.DOC_CREATED).json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
+  }
+};
+
+export const login = async (req: RequestWithId, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email })
+      .select('+password')
+      .orFail(new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль'))
+      .exec();
+    const isPasswordTrue = bcrypt.compareSync(password, user.password);
+    if (!isPasswordTrue) {
+      throw new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль');
+    }
+    const secretKey = process.env.JWT_SECRET ? process.env.JWT_SECRET : 'secret';
+    const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
+    res
+      .cookie(
+        'token',
+        token,
+        {
+          expires: new Date(Date.now() + 3600000 * 24 * 7),
+          httpOnly: true,
+          sameSite: 'strict',
+        },
+      )
+      .json(user);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -41,6 +106,7 @@ async function updateInfo(
   userId: string,
   data: IBody,
   res: Response,
+  next: NextFunction,
 ) {
   try {
     const user = await User.findByIdAndUpdate(
@@ -50,10 +116,10 @@ async function updateInfo(
         returnDocument: 'after',
         runValidators: true,
       },
-    ).orFail(new DocNotFoundError('User not found'));
+    ).orFail(new DocNotFoundError('Запрошенный пользователь не найден'));
     res.json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 }
 
@@ -64,11 +130,12 @@ interface IUpdateUserBody extends IBody {
 export const updateUserInfo = async (
   req: RequestWithId<IUpdateUserBody>,
   res: Response,
+  next: NextFunction,
 ) => {
   if (req.user) {
     const userId = req.user._id;
     const data = req.body;
-    await updateInfo(userId, data, res);
+    await updateInfo(userId, data, res, next);
   }
 };
 
@@ -78,10 +145,11 @@ interface IUpdateAvatarBody extends IBody {
 export const updateAvatar = async (
   req: RequestWithId<IUpdateAvatarBody>,
   res: Response,
+  next: NextFunction,
 ) => {
   if (req.user) {
     const userId = req.user._id;
     const data = req.body;
-    await updateInfo(userId, data, res);
+    await updateInfo(userId, data, res, next);
   }
 };
