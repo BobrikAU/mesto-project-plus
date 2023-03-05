@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { RequestWithId } from '../types/interfaces';
 import UnauthorizedError from '../errors/unauthorizedError';
-import handleErrors from '../helpers/index';
+// import handleErrors from '../helpers/index';
 
 require('dotenv').config();
 
@@ -13,7 +13,7 @@ const authorization = (req: RequestWithId, res: Response, next: NextFunction) =>
     jwt.verify(token, secretKey, (err: any, decoded: any) => {
       if (err) {
         const error = new UnauthorizedError('Ошибка авторизации. Пройдите авторизацию');
-        handleErrors(error, res);
+        next(error);
       } else {
         req.user = { _id: decoded._id };
         next();

@@ -1,43 +1,45 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
-import handleError from '../helpers/index';
+// import handleError from '../helpers/index';
 import CodesHTTPStatus from '../types/codes';
 import UnauthorizedError from '../errors/unauthorizedError';
 
 require('dotenv').config();
 
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.find({});
     res.json(users);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 };
 
-async function getUserById(userId: string, res: Response) {
+async function getUserById(userId: string, res: Response, next: NextFunction) {
   try {
-    const user = await User.findById(userId).orFail(new DocNotFoundError('User not found'));
+    const user = await User.findById(userId).orFail(
+      new DocNotFoundError('Запрошенный пользователь не найден'),
+    );
     res.json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 }
 
-export const getYourself = async (req: RequestWithId, res: Response) => {
+export const getYourself = async (req: RequestWithId, res: Response, next: NextFunction) => {
   if (req.user) {
     const userId = req.user._id;
-    await getUserById(userId, res);
+    await getUserById(userId, res, next);
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   const { userId } = req.params;
-  await getUserById(userId, res);
+  await getUserById(userId, res, next);
 };
 
 function makeHashPassword(password: string) {
@@ -46,7 +48,7 @@ function makeHashPassword(password: string) {
   return hashPassword;
 }
 
-export const createNewUser = async (req: Request, res: Response) => {
+export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
   const {
     email,
     password,
@@ -65,11 +67,11 @@ export const createNewUser = async (req: Request, res: Response) => {
     });
     res.status(CodesHTTPStatus.DOC_CREATED).json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 };
 
-export const login = async (req: RequestWithId, res: Response) => {
+export const login = async (req: RequestWithId, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email })
@@ -94,7 +96,7 @@ export const login = async (req: RequestWithId, res: Response) => {
       )
       .json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 };
 
@@ -105,6 +107,7 @@ async function updateInfo(
   userId: string,
   data: IBody,
   res: Response,
+  next: NextFunction,
 ) {
   try {
     const user = await User.findByIdAndUpdate(
@@ -114,10 +117,10 @@ async function updateInfo(
         returnDocument: 'after',
         runValidators: true,
       },
-    ).orFail(new DocNotFoundError('User not found'));
+    ).orFail(new DocNotFoundError('Запрошенный пользователь не найден'));
     res.json(user);
   } catch (err) {
-    handleError(err, res, 'user');
+    next(err);
   }
 }
 
@@ -128,11 +131,12 @@ interface IUpdateUserBody extends IBody {
 export const updateUserInfo = async (
   req: RequestWithId<IUpdateUserBody>,
   res: Response,
+  next: NextFunction,
 ) => {
   if (req.user) {
     const userId = req.user._id;
     const data = req.body;
-    await updateInfo(userId, data, res);
+    await updateInfo(userId, data, res, next);
   }
 };
 
@@ -142,10 +146,11 @@ interface IUpdateAvatarBody extends IBody {
 export const updateAvatar = async (
   req: RequestWithId<IUpdateAvatarBody>,
   res: Response,
+  next: NextFunction,
 ) => {
   if (req.user) {
     const userId = req.user._id;
     const data = req.body;
-    await updateInfo(userId, data, res);
+    await updateInfo(userId, data, res, next);
   }
 };
