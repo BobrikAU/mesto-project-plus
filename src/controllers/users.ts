@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import config from '../config';
 import DocNotFoundError from '../errors/docNotFoundError';
 import User from '../models/user';
 import { RequestWithId } from '../types/interfaces';
 import CodesHTTPStatus from '../types/codes';
 import UnauthorizedError from '../errors/unauthorizedError';
-
-require('dotenv').config();
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -81,8 +80,7 @@ export const login = async (req: RequestWithId, res: Response, next: NextFunctio
     if (!isPasswordTrue) {
       throw new UnauthorizedError('Передан неправильный адрес электронной почты или неверный пароль');
     }
-    const secretKey = process.env.JWT_SECRET ? process.env.JWT_SECRET : 'secret';
-    const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: '7d' });
+    const token = jwt.sign({ _id: user._id }, config.JWT_SECRET, { expiresIn: '7d' });
     res
       .cookie(
         'token',

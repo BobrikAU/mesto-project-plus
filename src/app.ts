@@ -3,7 +3,6 @@ import express, {
   Response,
   NextFunction,
 } from 'express';
-import { env } from 'process';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -13,17 +12,18 @@ import {
   errors,
   Segments,
 } from 'celebrate';
+import config from './config';
 import router from './routers/index';
 import authorization from './middlewares/auth';
 import handleErrors from './helpers/index';
 import { requestLogger, errorLogger } from './middlewares/loggers';
 
 const app = express();
-const { PORT = 3000 } = env;
+const { PORT, MONGODB_URL, HOST } = config;
 
 mongoose.set('strictQuery', false);
 async function connectDataBase() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+  await mongoose.connect(MONGODB_URL);
 }
 connectDataBase()
   .then(() => console.log('База данных подключена'))
@@ -52,6 +52,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), HOST, () => {
   console.log(`Cервер работает на порту ${PORT}!!!`);
 });
