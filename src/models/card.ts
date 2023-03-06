@@ -27,7 +27,7 @@ const cardSchema = new Schema({
       validator(url: string) {
         return REGEX.test(url);
       },
-      message: 'Неверный адрес аватара',
+      message: 'Неверный адрес изображения для карточки',
     },
     required: true,
   },
