@@ -14,7 +14,7 @@ const handleErrors = (err: any, res: Response) => {
     });
   } else if (!err.statusCode) {
     res.status(CodesHTTPStatus.DEFAULT).json({
-      message: `Произошла ошибка: ${err}`,
+      message: 'На сервере произошла ошибка',
     });
   } else {
     res.status(err.statusCode).json(err.message);
