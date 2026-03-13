@@ -1,10 +1,5 @@
-import {
-  Schema,
-  model,
-  ObjectId,
-  Types,
-} from 'mongoose';
-import { REGEX, card } from '../types/constants';
+import { Schema, model, ObjectId, Types } from "mongoose";
+import { REGEX, card } from "../types/constants";
 
 interface ICard {
   name: string;
@@ -27,18 +22,18 @@ const cardSchema = new Schema({
       validator(url: string) {
         return REGEX.test(url);
       },
-      message: 'Неверный адрес изображения для карточки',
+      message: "Неверный адрес изображения для карточки",
     },
     required: true,
   },
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'user',
+    ref: "user",
     required: true,
   },
   likes: {
     type: [Schema.Types.ObjectId],
-    ref: 'user',
+    ref: "user",
     default: [],
   },
   createdAt: {
@@ -47,4 +42,4 @@ const cardSchema = new Schema({
   },
 });
 
-export default model<ICard>('card', cardSchema);
+export default model<ICard>("card", cardSchema);

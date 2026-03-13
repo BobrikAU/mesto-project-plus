@@ -1,27 +1,25 @@
-# Бэкенд Mesto. Каркас API Mesto
+# Mesto-Backend. API Mesto
 
-#### (учебный проект Яндекс.Практикума)
+[Русский](./README.ru.md)
+
+#### (das Lernprojekt von Yandex.Praktikum)
 
 ---
 
-## Цель проекта
+## Ziel des Projekts
 
-Практическое закрепление знаний по написанию серверной части сайта.
-Проект предусматривает сохранение информации о пользователях, ее редактирование и
-удаление пользователей. Также предусмотрено сохранение фотографий пользователей
-в виде карточек, удаление карточек и возможности оставлять реакцию на понравившихся карточках.
+Das Ziel des Projekts ist das Praktikum der Erstellung von einem Server einer Webseite./
+Der Server soll Nutzern ihre persönliche Information speichern, korrigieren lassen und die Entfernung von Nutzern sichern. Fotos von Nutzern sollen als Kärtchen gespeichert werden und diese Kärtchen sollen sich von ihren Herstellern entfernen lassen. Nutzer sollen die Möglichkeit haben, auf die Kärtchen von anderen Menschen zu reagieren.
 
-## Используемые технологии и решения
+## Benutzten Technologien und Lösungen
 
-- Typescript в качестве основного языка проекта
-- Mongodb и ODM Mongoose для хранения данных пользователей
-- Node.js в качестве среды выполнения. Используется фреймворк Express
-- Правильность оформления кода конролируется ESLint с применением правил Airbnb.
+- Typescript als Hauptprogrammiersprache des Projekts
+- MongoDB und ODM Mongoose für die Speicherung von Daten
+- Node.js als Umgebung. Das Framework Express ist benutzt
+- ESLint mit die Regeln Airbnb für die Kontrolle der Gestaltung des Codes.
 
-## Используемые команды
+## Benutzte Befehler
 
-- npm run start - запуск проекта в режиме разработки
-- npm run dev - запуск проекта в режиме разработки с перезагрузкой при сохранении изменений в коде
-- npm run build - сборка проекта для его использования
-
-Проект не окончен. Планируется доработать авторизацию пользователя и решить другие вопросы.
+- npm run start - das Starten des Projekts im Modus der Entwicklung
+- npm run dev - das Starten des Projekts im Modus der Entwicklung mit dem neuen Laden nach der Speicherung der Codeäderungen
+- npm run build - die Bearbeitung des Projekts für das Deploy
